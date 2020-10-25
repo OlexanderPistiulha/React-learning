@@ -19,6 +19,7 @@ export default class App extends Component {
         { label: "something three", important: false, id: "ekededenelnel" },
       ],
     };
+    this.maxId = 4; // так не делать, гененрирываь на серваке или иногда на клиенте
   }
   deleteItem = (id) => {
     this.setState(({ data }) => {
@@ -27,6 +28,19 @@ export default class App extends Component {
       const after = data.slice(index + 1);
 
       const newArr = [...before, ...after];
+      return {
+        data: newArr,
+      };
+    });
+  };
+  addItem = (body) => {
+    const newItem = {
+      label: body,
+      important: false,
+      id: this.maxId++,
+    };
+    this.setState(({ data }) => {
+      const newArr = [newItem, ...data];
       return {
         data: newArr,
       };
@@ -42,7 +56,7 @@ export default class App extends Component {
           <PostStatusFilter />
         </div>
         <PostList onDelete={this.deleteItem} posts={this.state.data} />
-        <PostAddForm />
+        <PostAddForm onAdd={this.addItem} />
       </div>
     );
   }
