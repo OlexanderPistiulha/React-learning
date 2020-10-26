@@ -7,17 +7,33 @@ import SearchPanel from "../search-panel/search-panel";
 import PostStatusFilter from "../post-status-filter/post-status-filter";
 import PostList from "../post-list/post-list";
 import PostAddForm from "../post-add-form/post-add-form";
-//import PostListItem from "../post-list-item/post-list-item";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       data: [
-        { label: "something one", important: true, id: "eknelnel" },
-        { label: "something two", important: false, id: "eknelnedel" },
-        { label: "something three", important: false, id: "ekededenelnel" },
+        {
+          label: "something one",
+          important: true,
+          like: false,
+          id: "eknelnel",
+        },
+        {
+          label: "something two",
+          important: false,
+          like: false,
+          id: "eknelnedel",
+        },
+        {
+          label: "something three",
+          important: false,
+          like: false,
+          id: "ekededenelnel",
+        },
       ],
+      term: "",
+      filter: "all",
     };
     this.maxId = 4; // так не делать, гененрирываь на серваке или иногда на клиенте
   }
@@ -33,6 +49,7 @@ export default class App extends Component {
       };
     });
   };
+
   addItem = (body) => {
     const newItem = {
       label: body,
@@ -47,39 +64,105 @@ export default class App extends Component {
     });
   };
 
+  onToggleImportant = (id) => {
+    this.setState(({ data }) => {
+      const index = data.findIndex((elem) => elem.id === id);
+      const old = data[index];
+      const newItem = { ...old, important: !old.important };
+
+      const newArr = [
+        ...data.slice(0, index),
+        newItem,
+        ...data.slice(index + 1),
+      ];
+
+      return {
+        data: newArr,
+      };
+    });
+  };
+
+  onToggleLiked = (id) => {
+    this.setState(({ data }) => {
+      const index = data.findIndex((elem) => elem.id === id);
+      const old = data[index];
+      const newItem = { ...old, like: !old.like };
+
+      const newArr = [
+        ...data.slice(0, index),
+        newItem,
+        ...data.slice(index + 1),
+      ];
+
+      return {
+        data: newArr,
+      };
+    });
+  };
+
+  searchPost(items, term) {
+    if (term.length === 0) {
+      return items;
+    }
+    return items.filter((item) => {
+      return item.label.indexOf(term) > -1;
+    });
+  }
+
+  filterPost = (items, filter) => {
+    if (filter === "like") {
+      return items.filter((item) => item.like);
+    } else {
+      return items;
+    }
+  };
+
+  onUpdateSearch = (term) => {
+    this.setState({ term }); // новая запись обьекта вместо tern:term
+  };
+
+  onFilterSelect = (filter) => {
+    this.setState({ filter }); // новая запись обьекта вместо tern:term
+  };
+
+  // commonToggle(id, data, nameElemArr, elemArr) {
+  //   const index = data.findIndex((elem) => elem.id === id);
+  //   const old = data[index];
+  //   const newItem = { ...old, nameElemArr: !old.elemArr };
+  //
+  //   const newArr = [...data.slice(0, index), newItem, ...data.slice(index + 1)];
+  //
+  //   return {
+  //     data: newArr,
+  //   };
+  // }
+
   render() {
+    const { data, term, filter } = this.state;
+
+    const liked = data.filter((item) => item.like).length;
+    const allPosts = data.length;
+
+    const visiblePosts = this.filterPost(this.searchPost(data, term), filter);
+
     return (
       <div className="app">
-        <AppHeader />
+        <AppHeader liked={liked} allPosts={allPosts} />
         <div className="search-panel  d-flex">
-          <SearchPanel />
-          <PostStatusFilter />
+          <SearchPanel onUpdateSearch={this.onUpdateSearch} />
+          <PostStatusFilter
+            filter={filter}
+            onFilterSelect={this.onFilterSelect}
+          />
         </div>
-        <PostList onDelete={this.deleteItem} posts={this.state.data} />
+        <PostList
+          onDelete={this.deleteItem}
+          onToggleImportant={this.onToggleImportant}
+          onToggleLiked={this.onToggleLiked}
+          posts={visiblePosts}
+        />
         <PostAddForm onAdd={this.addItem} />
       </div>
     );
   }
 }
-
-// const App = () => {
-//   //  data what we take  from imaginative server
-//   const data = [
-//     { label: "something one", important: true, id: "eknelnel" },
-//     { label: "something two", important: false, id: "eknelnedel" },
-//     { label: "something three", important: false, id: "ekededenelnel" },
-//   ];
-//   //  -------------------------------------------
-//
-//   return (
-//     <div className="app">
-//       <AppHeader />
-//       <div className="search-panel  d-flex">
-//         <SearchPanel />
-//         <PostStatusFilter />
-//       </div>
-//       <PostList onDelete={(id) => console.log(id)} posts={data} />
-//       <PostAddForm />
-//     </div>
-//   );
-// };
