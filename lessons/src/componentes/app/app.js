@@ -125,18 +125,6 @@ export default class App extends Component {
     this.setState({ filter }); // новая запись обьекта вместо tern:term
   };
 
-  // commonToggle(id, data, nameElemArr, elemArr) {
-  //   const index = data.findIndex((elem) => elem.id === id);
-  //   const old = data[index];
-  //   const newItem = { ...old, nameElemArr: !old.elemArr };
-  //
-  //   const newArr = [...data.slice(0, index), newItem, ...data.slice(index + 1)];
-  //
-  //   return {
-  //     data: newArr,
-  //   };
-  // }
-
   render() {
     const { data, term, filter } = this.state;
 
